@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Samples">
         <activity
-            android:name=".scopefun.ScopeActivity"
+            android:name=".flows.FlowActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

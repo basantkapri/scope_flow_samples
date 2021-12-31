@@ -1,42 +1,39 @@
 package com.example.samples.flows
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 val list = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9)
 val age = listOf(10, 20, 30, 40, 50, 60, 70, 80, 90)
 val user = listOf("User1", "User2", "User3", "User4", "User5", "User6", "User7", "User8", "User9")
 
+fun launchFun() {
+    CoroutineScope(Dispatchers.Default).launch {
+        Timber.d("sum -> sum data: $this")
+    }
+}
+
+suspend fun onCompletionTryFinally() = try {
+    flowOfData()
+        .onCompletion { Timber.d("onCompletionTryFinally -> onCompletion") }
+        .collect { Timber.d("onCompletionTryFinally -> collect data: $it") }
+} finally {
+    Timber.d("onCompletionTryFinally -> finally")
+}
+
+suspend fun onCompletionScope() = flowOfData()
+    .onCompletion { Timber.d("onCompletionScope -> onCompletion") }
+    .collect { Timber.d("onCompletionScope -> collect data: $it") }
+
 fun sumpOp() {
-    // Start a coroutine
-    //CoroutineScope(Dispatchers.Default).
     CoroutineScope(Dispatchers.Default).launch {
         val sum = flowOfTemp()
         Timber.d("sum -> sum data: $sum")
     }
-}
-
-suspend fun onCompletionNewScope() = try {
-    CoroutineScope(Dispatchers.Default).launch {
-        flowOfData()
-            .onCompletion { Timber.d("onCompletionNewScope -> onCompletion") }
-            .collect {
-                Timber.d("onCompletionNewScope -> collect data: $it")
-            }
-    }
-} finally {
-    Timber.d("onCompletionNewScope -> finally")
-}
-
-suspend fun onCompletionSameScope() = try {
-    flowOfData()
-        .onCompletion { Timber.d("onCompletionSameScope -> onCompletion") }
-        .collect {
-            Timber.d("onCompletionSameScope -> collect data: $it")
-        }
-} finally {
-    Timber.d("onCompletionSameScope -> finally")
 }
 
 
@@ -61,7 +58,7 @@ suspend fun flowOfTemp() = flow {
 
 suspend fun flowOfData() = flow {
     list.onEach { count ->
-        delay(500)
+        delay(50)
         emit(count)
     }
 }
@@ -80,10 +77,11 @@ suspend fun userFlow() = flow {
     }
 }
 
-suspend fun flatMap() {
-    val ageFlow = ageFlow()
+suspend fun funSlatMapLatest() {
+    val ageFlow  = ageFlow()
     val userFlow = userFlow()
-    ageFlow.flatMapLatest { age ->
+
+    ageFlow.map { age ->
         userFlow.map { name ->
             "Age -> $age || name -> $name"
         }

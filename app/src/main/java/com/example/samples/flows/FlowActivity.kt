@@ -20,9 +20,10 @@ class FlowActivity : AppCompatActivity() {
 
         //lifecycleScope.launch { onCompletionScope() }
 
-        lifecycleScope.launch { funSlatMapLatest() }
+        lifecycleScope.launch { funFlatMapLatest() }
+        lifecycleScope.launch { funMap() }
 
-
+        lifecycleScope.launch { funFlatMapMerge() }
 
     }
 }

@@ -29,24 +29,37 @@ suspend fun onCompletionScope() = flowOfData()
     .onCompletion { Timber.d("onCompletionScope -> onCompletion") }
     .collect { Timber.d("onCompletionScope -> collect data: $it") }
 
-fun sumpOp() {
-    CoroutineScope(Dispatchers.Default).launch {
-        val sum = flowOfTemp()
-        Timber.d("sum -> sum data: $sum")
+suspend fun funFlatMapLatest() {
+    val ageFlow  = ageFlow()
+    val userFlow = userFlow()
+
+    ageFlow.flatMapLatest { age ->
+        userFlow.map { name -> "name -> $name : Age -> $age" }
+    }.collect {
+        Timber.d("flatMapLatest -> $it")
     }
 }
 
+suspend fun funFlatMapMerge() {
+    val ageFlow  = ageFlow()
+    val userFlow = userFlow()
 
-fun mapOp() {
-    /*CoroutineScope(Dispatchers.Default).launch {
-        flowOfData()
-            .filter { it < 65 }
-            .map { if (it < 50) "String -> $it" else "Greater....$it" }
-            .collectLatest {
-                delay(200)
-                Timber.d("mapOp -> collect data: $it")
-            }
-    }*/
+    ageFlow.flatMapMerge { age ->
+        userFlow.map { name -> "name -> $name : Age -> $age" }
+    }.collect {
+        Timber.d("funFlatMapMerge -> $it")
+    }
+}
+
+suspend fun funMap() {
+    val ageFlow  = ageFlow()
+    val userFlow = userFlow()
+
+    ageFlow.map { age ->
+        userFlow.map { name -> "name -> $name : Age -> $age" }
+    }.collect {
+        Timber.d("flatMap -> $it")
+    }
 }
 
 suspend fun flowOfTemp() = flow {
@@ -77,18 +90,7 @@ suspend fun userFlow() = flow {
     }
 }
 
-suspend fun funSlatMapLatest() {
-    val ageFlow  = ageFlow()
-    val userFlow = userFlow()
 
-    ageFlow.map { age ->
-        userFlow.map { name ->
-            "Age -> $age || name -> $name"
-        }
-    }.collect {
-        Timber.d("flatMap -> $it")
-    }
-}
 
 suspend fun logData(it: Any) {
     delay(200)
